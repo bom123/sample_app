@@ -30,6 +30,7 @@ gem 'sqlite3-ruby', '1.2.4', :require => 'sqlite3'
 
 group :development do
   gem 'rspec-rails', '2.6.1'
+  gem 'annotate', '2.4.0'
 end
 
 group :test do
@@ -41,5 +42,4 @@ group :test do
   gem 'autotest-rails-pure', '4.1.2'
   gem 'autotest-fsevent', '0.2.4'
   gem 'autotest-growl', '0.2.9'  
-  
 end
