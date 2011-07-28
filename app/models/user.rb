@@ -13,6 +13,10 @@ require 'digest'
 
 class User < ActiveRecord::Base
   
+  # will_paginate per_page attribute
+  cattr_reader :per_page
+  @@per_page = 10
+  
   attr_accessor :password
   attr_accessible :name, :email, :password, :password_confirmation
   
