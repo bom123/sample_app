@@ -32,8 +32,8 @@ describe UsersController do
     describe "as an admin user" do
       
       before(:each) do
-        admin = Factory(:user, :email => "admin@example.com", :admin => true)
-        test_sign_in(admin)
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(@admin)
       end
       
       it "should destroy the user" do
@@ -45,6 +45,12 @@ describe UsersController do
       it "should redirect to the users page" do
         delete :destroy, :id => @user
         response.should redirect_to(users_path)
+      end
+      
+      it "should prevent from destroying itself and other admin users" do
+        lambda do
+          delete :destroy, :id => @admin
+        end.should_not change(User, :count)
       end
       
     end
@@ -98,6 +104,32 @@ describe UsersController do
         response.should have_selector("span.disabled", :content => "Previous")
         response.should have_selector("a", :href => "/users?page=2", :content => "2")
         response.should have_selector("a", :href => "/users?page=2", :content => "Next")
+      end
+      
+      it "should not have delete links" do
+        get :index
+        @users.each do |user|
+          response.should_not have_selector("a", :title => "Delete #{user.name}", :content => "delete")
+        end
+      end
+      
+    end
+    
+    describe "for admin users" do
+      
+      before(:each) do
+        admin = test_sign_in(Factory(:user, :admin => true))
+        @users = [admin]
+        2.times do
+          @users << Factory(:user, :email => Factory.next(:email))
+        end
+      end
+      
+      it "should have delete links for users" do
+        get :index
+        @users.each do |user|
+          response.should have_selector("a", :title => "Delete #{user.name}", :content => "delete")
+        end
       end
       
     end
@@ -156,6 +188,20 @@ describe UsersController do
       get :new
       response.should have_selector("input[name='user[password_confirmation]'][type='password']")
     end
+    
+    describe "for signed-in users" do
+      
+      before(:each) do
+        test_sign_in(Factory(:user))
+      end
+      
+      it "should reject access to the new action" do
+        get :new
+        response.should redirect_to(root_path)
+      end
+      
+    end
+    
   end
   
   describe "POST 'create'" do
@@ -199,6 +245,18 @@ describe UsersController do
         controller.should be_signed_in
       end
     end
+    describe "for signed-in users" do
+      
+      before(:each) do
+        test_sign_in(Factory(:user))
+      end
+      
+      it "should reject access to the create action" do
+        post :create, :user => @attr
+        response.should redirect_to(root_path)
+      end
+      
+    end    
   end
   
   
