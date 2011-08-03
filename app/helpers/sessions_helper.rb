@@ -27,6 +27,10 @@ module SessionsHelper
     cookies.delete(:permanent_token)
     self.current_user = nil
   end
+
+  def authenticate
+    deny_access unless signed_in?
+  end
   
   def deny_access
     store_location
