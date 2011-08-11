@@ -1,9 +1,31 @@
+<%= javascript_tag "
+  function initContentCounter(){
+    var contentLength = $('micropost_content').value.length;
+    var symbolCounter = 140;
+    if (contentLength > 0 ) {
+      symbolCounter -= contentLength;
+    }
+    updateContentCounter(symbolCounter);
+  };
+  function updateContentCounter(_count){
+    $('micropost_counter').update(_count);
+  };
+  function limitText(limitField, limitNum) {
+    if (limitField.value.length > limitNum) {
+      limitField.value = limitField.value.substring(0, limitNum);
+    } 
+  };" 
+%>
+
 <%= form_for @micropost do |f| %>
   <%= render 'shared/error_messages', :object => f.object %>
   <div class="field">
-    <%= f.text_area :content %>
+    <%= f.text_area :content, :onkeyup => "limitText(this,140); initContentCounter();", :onkeypress => "limitText(this,140); initContentCounter();" %>
   </div>
   <div class="actions">
     <%= f.submit "Submit" %>
   </div>
+  <b id="micropost_counter"></b> chars are left. 
 <% end %>
+
+<%= javascript_tag "initContentCounter();" %>
